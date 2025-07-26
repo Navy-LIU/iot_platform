@@ -1,0 +1,18 @@
+{
+  "name": "zeabur-server-demo",
+  "type": "nodejs",
+  "buildCommand": "npm install",
+  "startCommand": "npm start",
+  "environment": {
+    "NODE_ENV": "production"
+  },
+  "healthCheck": {
+    "path": "/health",
+    "port": 3000,
+    "timeout": 30
+  },
+  "resources": {
+    "memory": "512MB",
+    "cpu": "0.5"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "name": "zeabur-server-demo",
+  "version": "1.0.0",
+  "description": "A demo server application for deployment on Zeabur with PostgreSQL and email authentication",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "server": "node server.js",
+    "dev": "node scripts/dev.js",
+    "dev:watch": "nodemon app.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "db:migrate": "node db/migrate.js up",
+    "db:rollback": "node db/migrate.js down",
+    "db:seed": "node db/seeds.js run",
+    "db:seed:clear": "node db/seeds.js clear",
+    "db:setup": "npm run db:migrate && npm run db:seed",
+    "health": "curl -f http://localhost:3000/health || exit 1",
+    "check-env": "node scripts/check-env.js",
+    "deploy:check": "node scripts/deploy.js",
+    "deploy:docker": "docker build -t zeabur-server-demo .",
+    "deploy:docker-run": "docker run -p 3000:3000 --env-file .env zeabur-server-demo",
+    "verify": "node scripts/verify-app.js",
+    "prestart": "npm run check-env"
+  },
+  "keywords": ["zeabur", "nodejs", "express", "postgresql", "jwt", "authentication"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
