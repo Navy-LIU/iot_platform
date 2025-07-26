@@ -1,6 +1,6 @@
 const express = require('express');
 const { User } = require('../models');
-const { JWTUtils, createError } = require('../utils');
+const { createError } = require('../utils');
 const { asyncHandler } = require('../middleware');
 
 const router = express.Router();
@@ -227,7 +227,7 @@ router.get('/login-info', asyncHandler(async (req, res) => {
           message: 'Account will be temporarily locked after 5 failed attempts'
         },
         features: [
-          'JWT-based authentication',
+          'User authentication',
           'Secure password hashing',
           'Rate limiting protection',
           'Session fingerprinting'
@@ -236,11 +236,9 @@ router.get('/login-info', asyncHandler(async (req, res) => {
       endpoints: {
         register: 'POST /api/auth/register',
         login: 'POST /api/auth/login',
-        refresh: 'POST /api/auth/refresh',
         logout: 'POST /api/auth/logout',
-        me: 'GET /api/auth/me',
-        validate: 'POST /api/auth/validate',
-        passwordStrength: 'POST /api/auth/check-password-strength'
+        passwordStrength: 'POST /api/auth/check-password-strength',
+        loginInfo: 'GET /api/auth/login-info'
       }
     }
   });

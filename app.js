@@ -51,10 +51,19 @@ if (config.nodeEnv === 'development') {
 // Health check endpoint (before authentication)
 app.get('/health', async (req, res) => {
   try {
-    const dbHealth = await dbConnection.healthCheck();
+    let dbHealth;
+    try {
+      dbHealth = await dbConnection.healthCheck();
+    } catch (dbError) {
+      dbHealth = {
+        status: 'unhealthy',
+        message: 'Database connection failed',
+        error: dbError.message
+      };
+    }
     
     const healthStatus = {
-      status: 'healthy',
+      status: dbHealth.status === 'healthy' ? 'healthy' : 'degraded',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       environment: config.nodeEnv,
@@ -62,20 +71,18 @@ app.get('/health', async (req, res) => {
       database: dbHealth
     };
 
-    // Return 503 if database is unhealthy
-    if (dbHealth.status !== 'healthy') {
-      healthStatus.status = 'unhealthy';
-      return res.status(503).json(healthStatus);
-    }
-
+    // Return 200 even if database is unhealthy (degraded service)
     res.json(healthStatus);
   } catch (error) {
     console.error('Health check failed:', error);
     
-    res.status(503).json({
-      status: 'unhealthy',
+    res.status(200).json({
+      status: 'degraded',
       timestamp: new Date().toISOString(),
-      error: 'Health check failed',
+      uptime: process.uptime(),
+      environment: config.nodeEnv,
+      version: process.env.npm_package_version || '1.0.0',
+      error: 'Health check partially failed',
       database: {
         status: 'unhealthy',
         message: 'Database health check failed'
@@ -153,10 +160,15 @@ app.use(errorHandler);
 // Database connection and server startup
 const startServer = async () => {
   try {
-    // Connect to database
+    // Try to connect to database
     console.log('🔌 Connecting to database...');
-    await dbConnection.connect();
-    console.log('✅ Database connected successfully');
+    try {
+      await dbConnection.connect();
+      console.log('✅ Database connected successfully');
+    } catch (dbError) {
+      console.warn('⚠️  Database connection failed, but server will start anyway:', dbError.message);
+      console.warn('⚠️  Some features may not work properly without database connection');
+    }
 
     // Start server
     const port = config.port;

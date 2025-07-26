@@ -177,19 +177,20 @@ The application logs important events:
    - Check `DATABASE_URL` format
    - Ensure PostgreSQL service is running
    - Verify network connectivity
+   - The app will start even if database connection fails (degraded mode)
 
-2. **JWT Token Issues**
-   - Ensure `JWT_SECRET` is set
-   - Check token expiration settings
-   - Verify token format
-
-3. **Port Already in Use**
+2. **Port Already in Use**
    - Change `PORT` environment variable
    - Check for other running services
 
-4. **CORS Issues**
+3. **CORS Issues**
    - Configure `CORS_ORIGIN` properly
    - Check request headers
+
+4. **Application Won't Start**
+   - Check logs for specific error messages
+   - Verify all required environment variables are set
+   - Ensure Node.js version is 18 or higher
 
 ### Debug Mode
 

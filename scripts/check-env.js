@@ -27,15 +27,13 @@ const checkEnvironment = () => {
 
   // Check environment variables
   const requiredEnvVars = [
-    'DATABASE_URL',
-    'JWT_SECRET'
+    'DATABASE_URL'
   ];
 
   const optionalEnvVars = [
     'PORT',
     'NODE_ENV',
-    'CORS_ORIGIN',
-    'JWT_EXPIRES_IN'
+    'CORS_ORIGIN'
   ];
 
   console.log('\n🔧 Environment variables:');
@@ -119,20 +117,7 @@ const checkEnvironment = () => {
     }
   }
 
-  // JWT Secret validation
-  if (process.env.JWT_SECRET) {
-    const secretLength = process.env.JWT_SECRET.length;
-    console.log('\n🔐 JWT configuration:');
-    console.log(`✅ Secret length: ${secretLength} characters`);
-    
-    if (secretLength < 32) {
-      console.error('⚠️  JWT secret should be at least 32 characters for security');
-    }
-    
-    if (process.env.JWT_SECRET === 'demo-jwt-secret-key-for-development-only') {
-      console.error('⚠️  Using default JWT secret - change this in production!');
-    }
-  }
+
 
   // Summary
   console.log('\n' + '='.repeat(50));

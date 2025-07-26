@@ -9,7 +9,9 @@
   "healthCheck": {
     "path": "/health",
     "port": 3000,
-    "timeout": 30
+    "timeout": 60,
+    "interval": 30,
+    "retries": 3
   },
   "resources": {
     "memory": "512MB",

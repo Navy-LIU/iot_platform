@@ -2,9 +2,9 @@
   "name": "zeabur-server-demo",
   "version": "1.0.0",
   "description": "A demo server application for deployment on Zeabur with PostgreSQL and email authentication",
-  "main": "app.js",
+  "main": "start.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node start.js",
     "server": "node server.js",
     "dev": "node scripts/dev.js",
     "dev:watch": "nodemon app.js",
@@ -22,7 +22,7 @@
     "deploy:docker": "docker build -t zeabur-server-demo .",
     "deploy:docker-run": "docker run -p 3000:3000 --env-file .env zeabur-server-demo",
     "verify": "node scripts/verify-app.js",
-    "prestart": "npm run check-env"
+    "prestart": "node scripts/production-check.js"
   },
   "keywords": ["zeabur", "nodejs", "express", "postgresql", "jwt", "authentication"],
   "author": "",

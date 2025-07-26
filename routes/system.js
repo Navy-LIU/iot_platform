@@ -201,7 +201,6 @@ router.get('/info', asyncHandler(async (req, res) => {
         }
       },
       features: [
-        'JWT-based authentication',
         'User registration and login',
         'Password strength validation',
         'Rate limiting protection',
@@ -210,7 +209,7 @@ router.get('/info', asyncHandler(async (req, res) => {
         'System metrics and monitoring'
       ],
       security: {
-        authentication: 'JWT tokens',
+        authentication: 'Session-based',
         passwordHashing: 'bcrypt',
         rateLimiting: 'In-memory store',
         inputValidation: 'Comprehensive validation',

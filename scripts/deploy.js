@@ -87,8 +87,7 @@ const deploymentChecks = async () => {
   // Check environment variables for production
   console.log('\n🔧 Environment variables for production:');
   const requiredEnvVars = [
-    'DATABASE_URL',
-    'JWT_SECRET'
+    'DATABASE_URL'
   ];
 
   const optionalEnvVars = [
@@ -158,7 +157,6 @@ const deploymentChecks = async () => {
     console.log('3. Add a PostgreSQL service in Zeabur');
     console.log('4. Set the following environment variables in Zeabur:');
     console.log('   - DATABASE_URL (from PostgreSQL service)');
-    console.log('   - JWT_SECRET (generate a secure random string)');
     console.log('   - NODE_ENV=production');
     console.log('5. Deploy!');
     
