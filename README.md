@@ -4,9 +4,9 @@ A complete demo server application for deployment on Zeabur platform with Postgr
 
 ## 🚀 Features
 
-- **Authentication System**: Complete user registration, login, and JWT-based authentication
+- **Authentication System**: User registration and login with password validation
 - **User Management**: Profile management, password changes, account deletion
-- **Security**: Rate limiting, password strength validation, secure token handling
+- **Security**: Rate limiting, password strength validation, input validation
 - **Database Integration**: PostgreSQL with connection pooling and health monitoring
 - **System Monitoring**: Health checks, metrics, and system status endpoints
 - **Error Handling**: Comprehensive error handling with structured responses
@@ -18,7 +18,7 @@ A complete demo server application for deployment on Zeabur platform with Postgr
 - **Runtime**: Node.js 18+
 - **Framework**: Express.js
 - **Database**: PostgreSQL
-- **Authentication**: JWT (JSON Web Tokens)
+- **Authentication**: Session-based authentication
 - **Password Encryption**: bcrypt
 - **Database Client**: pg (node-postgres)
 - **Testing**: Jest + Supertest
@@ -30,26 +30,23 @@ A complete demo server application for deployment on Zeabur platform with Postgr
 ### Authentication (`/api/auth`)
 - `POST /register` - User registration with validation
 - `POST /login` - User login with rate limiting
-- `POST /refresh` - Refresh JWT tokens
 - `POST /logout` - User logout
-- `GET /me` - Get current user info
-- `POST /validate` - Validate JWT token
 - `POST /check-password-strength` - Check password strength
 - `GET /login-info` - Get login requirements and security info
 
 ### User Management (`/api/user`)
-- `GET /profile` - Get user profile (authenticated)
-- `PUT /profile` - Update user profile (authenticated)
-- `GET /:id` - Get user by ID (authenticated)
-- `DELETE /profile` - Delete user account (authenticated)
-- `POST /change-password` - Change password (authenticated)
-- `GET /stats` - Get user statistics (authenticated)
+- `GET /profile/:id` - Get user profile by ID
+- `PUT /profile/:id` - Update user profile by ID
+- `GET /:id` - Get user by ID
+- `DELETE /profile/:id` - Delete user account by ID
+- `POST /change-password/:id` - Change password by ID
+- `GET /stats/:id` - Get user statistics by ID
 
 ### System Monitoring (`/api/system`)
 - `GET /health` - Detailed health check with system metrics
 - `GET /status` - System status and basic metrics
 - `GET /info` - API documentation and information
-- `GET /metrics` - Detailed system metrics (authenticated)
+- `GET /metrics` - Detailed system metrics
 - `GET /ping` - Simple connectivity test
 
 ### General
@@ -100,13 +97,12 @@ A complete demo server application for deployment on Zeabur platform with Postgr
 
 ### Required
 - `DATABASE_URL` - PostgreSQL connection string
-- `JWT_SECRET` - JWT signing secret (generate with: `openssl rand -hex 64`)
 
 ### Optional
 - `PORT` - Server port (default: 3000)
 - `NODE_ENV` - Environment mode (default: development)
 - `CORS_ORIGIN` - CORS allowed origins (default: *)
-- `JWT_EXPIRES_IN` - JWT token expiration (default: 24h)
+
 
 ## 🧪 Testing
 
@@ -139,10 +135,9 @@ npm run verify
    - Connect your repository to Zeabur
    - Add PostgreSQL service
    - Set environment variables:
-     - `DATABASE_URL` (from PostgreSQL service)
+     - `DATABASE_URL` (from PostgreSQL service) hkg1.clusters.zeabur.com:32127/zeabur
      - `JWT_SECRET` (secure random string)
      - `NODE_ENV=production`
-
 4. **Zeabur will automatically:**
    - Detect Node.js application
    - Run `npm install`
@@ -172,7 +167,6 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
 
 ## 🔒 Security Features
 
-- **JWT Authentication**: Secure token-based authentication
 - **Password Security**: bcrypt hashing with strength validation
 - **Rate Limiting**: Protection against brute force attacks
 - **Input Validation**: Comprehensive request validation

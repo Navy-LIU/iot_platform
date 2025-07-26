@@ -26,7 +26,6 @@ This guide explains how to deploy the Zeabur Server Demo application to various 
 
    **Required:**
    - `DATABASE_URL` - PostgreSQL connection string (from Zeabur PostgreSQL service)
-   - `JWT_SECRET` - A secure random string (generate with: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`)
    - `NODE_ENV` - Set to `production`
 
    **Optional:**
@@ -91,7 +90,6 @@ The `zeabur.json` file contains the deployment configuration:
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@host:5432/dbname` |
-| `JWT_SECRET` | Secret key for JWT token signing | `your-super-secret-key-here` |
 
 ### Optional Variables
 
@@ -100,7 +98,7 @@ The `zeabur.json` file contains the deployment configuration:
 | `NODE_ENV` | Environment mode | `development` |
 | `PORT` | Server port | `3000` |
 | `CORS_ORIGIN` | Allowed CORS origins | `*` |
-| `JWT_EXPIRES_IN` | JWT token expiration | `24h` |
+
 
 ## Database Setup
 

@@ -223,9 +223,9 @@ router.get('/info', asyncHandler(async (req, res) => {
 /**
  * @route   GET /api/system/metrics
  * @desc    System metrics for monitoring
- * @access  Private (requires authentication)
+ * @access  Public
  */
-router.get('/metrics', auth.authenticateToken, asyncHandler(async (req, res) => {
+router.get('/metrics', asyncHandler(async (req, res) => {
   try {
     const memoryUsage = process.memoryUsage();
     const systemMemory = {

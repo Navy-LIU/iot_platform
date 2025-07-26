@@ -40,9 +40,6 @@ router.post('/register', asyncHandler(async (req, res) => {
       password: password
     });
 
-    // Generate JWT tokens
-    const tokens = JWTUtils.generateTokenPair(user);
-
     // Log successful registration
     console.log(`✅ User registered successfully: ${user.email} (ID: ${user.id})`);
 
@@ -51,13 +48,7 @@ router.post('/register', asyncHandler(async (req, res) => {
       success: true,
       message: 'User registered successfully',
       data: {
-        user: user.toPublicJSON(),
-        tokens: {
-          accessToken: tokens.accessToken,
-          refreshToken: tokens.refreshToken,
-          tokenType: 'Bearer',
-          expiresIn: '24h'
-        }
+        user: user.toPublicJSON()
       }
     });
   } catch (error) {
@@ -125,13 +116,6 @@ router.post('/login', asyncHandler(async (req, res) => {
     // Reset rate limit on successful login
     SecurityUtils.resetRateLimit(`login:${clientIP}`);
 
-    // Generate JWT tokens with appropriate expiration
-    const tokenOptions = rememberMe ? { expiresIn: '30d' } : {};
-    const refreshTokenOptions = rememberMe ? { expiresIn: '90d' } : { expiresIn: '7d' };
-    
-    const accessToken = JWTUtils.generateAuthToken(user, tokenOptions);
-    const refreshToken = JWTUtils.generateRefreshToken(user, refreshTokenOptions);
-
     // Extract client information for logging
     const clientInfo = SecurityUtils.extractClientInfo(req);
 
@@ -147,12 +131,6 @@ router.post('/login', asyncHandler(async (req, res) => {
     // Prepare response
     const responseData = {
       user: user.toPublicJSON(),
-      tokens: {
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-        tokenType: 'Bearer',
-        expiresIn: rememberMe ? '30d' : '24h'
-      },
       session: {
         rememberMe: rememberMe,
         loginTime: new Date().toISOString(),
@@ -178,169 +156,15 @@ router.post('/login', asyncHandler(async (req, res) => {
 }));
 
 /**
- * @route   POST /api/auth/refresh
- * @desc    Refresh access token using refresh token
- * @access  Public
- */
-router.post('/refresh', asyncHandler(async (req, res) => {
-  const { refreshToken } = req.body;
-
-  // Validate refresh token presence
-  if (!refreshToken) {
-    throw createError.missingFields(['refreshToken']);
-  }
-
-  try {
-    // Generate new access token
-    const newAccessToken = JWTUtils.refreshAccessToken(refreshToken);
-
-    // Get user info from refresh token for logging
-    const userInfo = JWTUtils.getUserFromToken(refreshToken);
-    console.log(`🔄 Token refreshed for user ID: ${userInfo.userId}`);
-
-    // Return new access token
-    res.json({
-      success: true,
-      message: 'Token refreshed successfully',
-      data: {
-        accessToken: newAccessToken,
-        tokenType: 'Bearer',
-        expiresIn: '24h'
-      }
-    });
-  } catch (error) {
-    // Handle token refresh errors
-    if (error.message && error.message.includes('refresh')) {
-      throw createError.authenticationFailed('Invalid refresh token');
-    }
-    
-    throw error;
-  }
-}));
-
-/**
  * @route   POST /api/auth/logout
- * @desc    Logout user (client-side token removal)
+ * @desc    Logout user (session cleanup)
  * @access  Public
- * @note    In a stateless JWT system, logout is primarily handled client-side
- *          This endpoint exists for consistency and potential future token blacklisting
  */
 router.post('/logout', asyncHandler(async (req, res) => {
-  // In a stateless JWT system, we can't invalidate tokens server-side
-  // without maintaining a blacklist. For this demo, we'll just return success
-  // and rely on the client to remove the tokens.
-  
-  // Future enhancement: Implement token blacklisting with Redis
-  
   res.json({
     success: true,
-    message: 'Logout successful. Please remove tokens from client storage.'
+    message: 'Logout successful'
   });
-}));
-
-/**
- * @route   GET /api/auth/me
- * @desc    Get current user info from token
- * @access  Private
- */
-router.get('/me', asyncHandler(async (req, res) => {
-  // This endpoint would typically use authentication middleware
-  // For now, we'll extract user info from the Authorization header
-  
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader) {
-    throw createError.authenticationFailed('Authorization header required');
-  }
-
-  const token = authHeader.startsWith('Bearer ') 
-    ? authHeader.slice(7) 
-    : authHeader;
-
-  try {
-    // Get user info from token
-    const userInfo = JWTUtils.getUserFromToken(token);
-    
-    if (!userInfo) {
-      throw createError.authenticationFailed('Invalid token');
-    }
-
-    // Find user in database to get latest info
-    const user = await User.findById(userInfo.userId);
-    
-    if (!user) {
-      throw createError.userNotFound(userInfo.userId);
-    }
-
-    res.json({
-      success: true,
-      data: {
-        user: user.toPublicJSON(),
-        tokenInfo: {
-          userId: userInfo.userId,
-          email: userInfo.email,
-          issuedAt: new Date(userInfo.iat * 1000).toISOString(),
-          expiresAt: new Date(userInfo.exp * 1000).toISOString()
-        }
-      }
-    });
-  } catch (error) {
-    if (error.message && error.message.includes('token')) {
-      throw createError.authenticationFailed('Invalid or expired token');
-    }
-    
-    throw error;
-  }
-}));
-
-/**
- * @route   POST /api/auth/validate
- * @desc    Validate token without returning user data
- * @access  Public
- */
-router.post('/validate', asyncHandler(async (req, res) => {
-  const { token } = req.body;
-
-  if (!token) {
-    throw createError.missingFields(['token']);
-  }
-
-  try {
-    // Validate token
-    const userInfo = JWTUtils.getUserFromToken(token);
-    
-    if (!userInfo) {
-      throw createError.authenticationFailed('Invalid token');
-    }
-
-    // Check if user still exists
-    const user = await User.findById(userInfo.userId);
-    
-    if (!user) {
-      throw createError.authenticationFailed('User no longer exists');
-    }
-
-    res.json({
-      success: true,
-      message: 'Token is valid',
-      data: {
-        valid: true,
-        userId: userInfo.userId,
-        email: userInfo.email,
-        expiresAt: new Date(userInfo.exp * 1000).toISOString()
-      }
-    });
-  } catch (error) {
-    // Return invalid status instead of throwing error
-    res.json({
-      success: true,
-      message: 'Token validation result',
-      data: {
-        valid: false,
-        reason: error.message
-      }
-    });
-  }
 }));
 
 /**
